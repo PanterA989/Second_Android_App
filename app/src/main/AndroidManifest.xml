@@ -9,6 +9,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.PollubProjektMobilne3">
+        <provider
+            android:authorities="com.example.pollubprojektmobilne3.MyContentProvider"
+            android:name=".MyContentProvider"
+            android:enabled="true"
+            android:exported="true"/>
+        <!--android:enabled - whether the system can create a provider instance
+            android:exported - true = available for other applications, false = available for application with the same user ID
+            TODO: android:exported should be false?-->
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
