@@ -1,4 +1,15 @@
 <resources>
     <string name="app_name">Baza telefonów</string>
     <string name="no_data">Brak danych</string>
+    <string name="Brand_TextView">Marka:</string>
+    <string name="Model_TextView">Model:</string>
+    <string name="Version_TextView">Wersja androida:</string>
+    <string name="WWW_TextView">WWW:</string>
+    <string name="Hint_Brand_EditText">Wpisz markę smartphona</string>
+    <string name="Hint_Model_EditText">Wpisz model smartphona</string>
+    <string name="Hint_Version_EditText">Wpisz wersję androida</string>
+    <string name="Hint_WWW_EditText">Wpisz stronę WWW</string>
+    <string name="Cancel_Button_Text">Anuluj</string>
+    <string name="WWW_Button_Text">WWW</string>
+    <string name="Save_Button_Text">Zapisz</string>
 </resources>

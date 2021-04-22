@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         arrayList.add("DZIESIĘĆ");
         arrayList.add("JEDENAŚCIE");
         arrayList.add("DWANAŚCIE");
+
         if(arrayList.isEmpty()) {
             findViewById(R.id.noDataTextView).setVisibility(View.VISIBLE);
         }
@@ -78,12 +79,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onLoadFinished(@NonNull androidx.loader.content.Loader<Cursor> loader, Cursor data) {
-
+        simpleCursorAdapter.swapCursor(data);
     }
 
     @Override
     public void onLoaderReset(@NonNull androidx.loader.content.Loader<Cursor> loader) {
-
+        simpleCursorAdapter.swapCursor(null);
     }
-
 }
