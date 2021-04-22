@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        listView = (ListView)findViewById(R.id.listOfSmartphones);
+        listView = findViewById(R.id.listOfSmartphones);
         ArrayList<String> arrayList = new ArrayList<>();
         arrayList.add("JEDEN");
         arrayList.add("DWA");
@@ -63,18 +63,17 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     private void startLoader(){
-        getLoaderManager().initLoader(0, null, this);
+        LoaderManager.getInstance(MainActivity.this).restartLoader(0, null, this);
         String[] mapFrom = new String[]{DBHelper.BRAND, DBHelper.MODEL};
         int[] mapTo = new int[]{R.id.brand_TextView, R.id.model_TextView};
-        simpleCursorAdapter = new SimpleCursorAdapter(getApplicationContext(), R.layout.list_item, cursor, mapFrom, mapTo);
+        simpleCursorAdapter = new SimpleCursorAdapter(getApplicationContext(), R.layout.list_item, cursor, mapFrom, mapTo); //TODO: do something with not initialized cursor?
     }
 
     @NonNull
     @Override
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
         String[] projection = {DBHelper.ID, DBHelper.BRAND, DBHelper.MODEL};
-        CursorLoader cursorLoader = new CursorLoader(this, MyContentProvider.URI_CONTENT, projection, null, null, null);
-        return cursorLoader;
+        return new CursorLoader(this, MyContentProvider.URI_CONTENT, projection, null, null, null);
     }
 
     @Override
