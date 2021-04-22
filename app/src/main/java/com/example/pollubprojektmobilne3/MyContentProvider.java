@@ -18,7 +18,7 @@ public class MyContentProvider extends ContentProvider {
     private static final String IDENTIFIER = "com.example.pollubprojektmobilne3";
 
     //constant - so that you do not have to enter the text yourself
-    //public static final Uri URI_CONTENT = Uri.parse("content://" + IDENTIFIER + "/" + DBHelper.TABLE_NAME);
+    public static final Uri URI_CONTENT = Uri.parse("content://" + IDENTIFIER + "/" + DBHelper.TABLE_NAME);
 
     //constants to identify the type of URI recognized
     private static final int WHOLE_TABLE = 1;
