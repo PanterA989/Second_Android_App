@@ -48,6 +48,7 @@ public class MyContentProvider extends ContentProvider {
         long addedID;
 
         //equivalent to C# using - automatic close() method call after end of scope
+        //(?)Suppressed Exceptions - https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html
         try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
             if (uriType == WHOLE_TABLE) {
                 addedID = db.insert(DBHelper.TABLE_NAME,
@@ -69,7 +70,7 @@ public class MyContentProvider extends ContentProvider {
         int uriType = uriMatch.match(uri);
         Cursor cursor;
 
-        //equivalent to C# using - automatic close() method call after end of scope
+        //try-with-resources - equivalent to C# using - automatic close() method call after end of scope
         try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
             switch (uriType) {
                 case WHOLE_TABLE:
@@ -101,7 +102,7 @@ public class MyContentProvider extends ContentProvider {
         int uriType = uriMatch.match(uri);
         int deletedRows;
 
-        //equivalent to C# using - automatic close() method call after end of scope
+        //try-with-resources - equivalent to C# using - automatic close() method call after end of scope
         try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
             switch (uriType) {
                 case WHOLE_TABLE:
@@ -124,7 +125,7 @@ public class MyContentProvider extends ContentProvider {
         int uriType = uriMatch.match(uri);
         int updatedRows;
 
-        //equivalent to C# using - automatic close() method call after end of scope
+        //try-with-resources - equivalent to C# using - automatic close() method call after end of scope
         try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
             switch (uriType) {
                 case WHOLE_TABLE:
