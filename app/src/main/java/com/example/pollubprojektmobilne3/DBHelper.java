@@ -9,11 +9,11 @@ public class DBHelper extends SQLiteOpenHelper {
     public final static String ID = "_id";
     public final static String DB_NAME = "smartphones.db";
     public final static String TABLE_NAME = "devices";
-    public final static String COLUMN1 = "brand";
-    public final static String COLUMN2 = "model";
-    public final static String COLUMN3 = "version";
-    public final static String COLUMN4 = "www";
-    public final static String DB_CREATE = "CREATE TABLE " + TABLE_NAME + "(" + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN1 + " TEXT NOT NULL," + COLUMN2 + " TEXT NOT NULL," + COLUMN3 + " TEXT," + COLUMN4 + " TEXT);";
+    public final static String BRAND = "brand";
+    public final static String MODEL = "model";
+    public final static String VERSION = "version";
+    public final static String WWW = "www";
+    public final static String DB_CREATE = "CREATE TABLE " + TABLE_NAME + "(" + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + BRAND + " TEXT NOT NULL," + MODEL + " TEXT NOT NULL," + VERSION + " TEXT," + WWW + " TEXT);";
     private static final String DB_DELETE = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
     public DBHelper(Context context)
