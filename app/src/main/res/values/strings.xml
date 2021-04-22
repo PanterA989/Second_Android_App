@@ -12,4 +12,6 @@
     <string name="Cancel_Button_Text">Anuluj</string>
     <string name="WWW_Button_Text">WWW</string>
     <string name="Save_Button_Text">Zapisz</string>
+    <string name="remove_smartphone">Usuń</string>
+    <string name="add_smartphone">Dodaj</string>
 </resources>
