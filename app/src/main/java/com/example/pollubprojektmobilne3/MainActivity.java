@@ -16,7 +16,7 @@ import android.widget.SimpleCursorAdapter;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements android.app.LoaderManager.LoaderCallbacks<Cursor> {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private ListView listView;
     private SimpleCursorAdapter simpleCursorAdapter;
@@ -63,12 +63,10 @@ public class MainActivity extends AppCompatActivity implements android.app.Loade
     }
 
     private void startLoader(){
-        getLoaderManager().initLoader(0, null, this)
+        getLoaderManager().initLoader(0, null, this);
         String[] mapFrom = new String[]{DBHelper.BRAND, DBHelper.MODEL};
         int[] mapTo = new int[]{R.id.brand_TextView, R.id.model_TextView};
         simpleCursorAdapter = new SimpleCursorAdapter(getApplicationContext(), R.layout.list_item, cursor, mapFrom, mapTo);
-
-
     }
 
     @NonNull
@@ -80,12 +78,13 @@ public class MainActivity extends AppCompatActivity implements android.app.Loade
     }
 
     @Override
-    public void onLoadFinished(android.content.Loader<Cursor> loader, Cursor data) {
+    public void onLoadFinished(@NonNull androidx.loader.content.Loader<Cursor> loader, Cursor data) {
 
     }
 
     @Override
-    public void onLoaderReset(android.content.Loader<Cursor> loader) {
+    public void onLoaderReset(@NonNull androidx.loader.content.Loader<Cursor> loader) {
 
     }
+
 }
