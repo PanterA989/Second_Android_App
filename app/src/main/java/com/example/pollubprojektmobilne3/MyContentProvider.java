@@ -74,11 +74,21 @@ public class MyContentProvider extends ContentProvider {
         try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
             switch (uriType) {
                 case WHOLE_TABLE:
-                case SELECTED_ROW:
                     cursor = db.query(true, //distinct
                             DBHelper.TABLE_NAME,
                             projection, //columns
                             selection, //WHERE
+                            selectionArgs, //whereArgs
+                            null, //GROUP BY
+                            null, //HAVING
+                            sortOrder, //ORDER BY
+                            null); //limit
+                    break;
+                case SELECTED_ROW:
+                    cursor = db.query(true, //distinct
+                            DBHelper.TABLE_NAME,
+                            projection, //columns
+                            addIdToSelection(uri, selection), //WHERE
                             selectionArgs, //whereArgs
                             null, //GROUP BY
                             null, //HAVING
@@ -96,7 +106,6 @@ public class MyContentProvider extends ContentProvider {
     }
 
 
-
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
         int uriType = uriMatch.match(uri);
@@ -106,9 +115,13 @@ public class MyContentProvider extends ContentProvider {
         try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
             switch (uriType) {
                 case WHOLE_TABLE:
-                case SELECTED_ROW:
                     deletedRows = db.delete(DBHelper.TABLE_NAME,
                             selection, //WHERE
+                            selectionArgs); //whereArgs
+                    break;
+                case SELECTED_ROW:
+                    deletedRows = db.delete(DBHelper.TABLE_NAME,
+                            addIdToSelection(uri, selection), //WHERE
                             selectionArgs); //whereArgs
                     break;
                 default:
@@ -129,10 +142,15 @@ public class MyContentProvider extends ContentProvider {
         try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
             switch (uriType) {
                 case WHOLE_TABLE:
-                case SELECTED_ROW:
                     updatedRows = db.update(DBHelper.TABLE_NAME,
                             values,
                             selection, //WHERE
+                            selectionArgs); //whereArgs
+                    break;
+                case SELECTED_ROW:
+                    updatedRows = db.update(DBHelper.TABLE_NAME,
+                            values,
+                            addIdToSelection(uri, selection), //WHERE
                             selectionArgs); //whereArgs
                     break;
                 default:
@@ -144,11 +162,18 @@ public class MyContentProvider extends ContentProvider {
         return updatedRows;
     }
 
-
     @Nullable
     @Override
     public String getType(@NonNull Uri uri) {
         return null;
+    }
+
+    private String addIdToSelection(Uri uri, String selection) {
+        if (!selection.equals("") && selection != null)
+            selection += " AND " + DBHelper.ID + " = " + uri.getLastPathSegment();
+        else
+            selection = DBHelper.ID + " = " + uri.getLastPathSegment();
+        return selection;
     }
 
 }
