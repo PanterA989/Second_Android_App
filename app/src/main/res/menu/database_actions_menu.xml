@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/add_smartphone"
+        android:icon="@drawable/ic_add_smartphone"
+        android:title="@string/add_smartphone"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/remove_smartphone"
+        android:icon="@drawable/ic_remove_smartphone"
+        android:title="@string/remove_smartphone"
+        app:showAsAction="ifRoom"
+        android:visible="true"/>
+</menu>
