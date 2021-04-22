@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Baza telefonów</string>
+    <string name="no_data">Brak danych</string>
 </resources>
