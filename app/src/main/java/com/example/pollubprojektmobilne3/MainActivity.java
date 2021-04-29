@@ -9,11 +9,8 @@ import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.AbsListView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,23 +18,20 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 
-import java.util.ArrayList;
-
-
-
 //import androidx.loader.app.LoaderManager;
+
 import androidx.loader.app.LoaderManager;
-import androidx.loader.app.LoaderManager.LoaderCallbacks;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
-//import android.app.LoaderManager.LoaderCallbacks;
 import android.widget.SimpleCursorAdapter;
+//import android.app.LoaderManager.LoaderCallbacks;
+
+
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private ListView listView;
     private SimpleCursorAdapter simpleCursorAdapter;
-    private Cursor cursor;
 
 
     private static final int REQUEST_ADD_SMARTPHONE = 378;
@@ -48,40 +42,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         setContentView(R.layout.activity_main);
         listView = findViewById(R.id.listOfSmartphones);
 
-//        ArrayList<String> arrayList = new ArrayList<>();
-//        arrayList.add("JEDEN");
-//        arrayList.add("DWA");
-//        arrayList.add("TRZY");
-//        arrayList.add("CZTERY");
-//        arrayList.add("PIĘĆ");
-//        arrayList.add("SZEŚĆ");
-//        arrayList.add("SIEDEM");
-//        arrayList.add("OSIEM");
-//        arrayList.add("DZIEWIĘĆ");
-//        arrayList.add("DZIESIĘĆ");
-//        arrayList.add("JEDENAŚCIE");
-//        arrayList.add("DWANAŚCIE");
-//        arrayList.add("JEDEN");
-//        arrayList.add("DWA");
-//        arrayList.add("TRZY");
-//        arrayList.add("CZTERY");
-//        arrayList.add("PIĘĆ");
-//        arrayList.add("SZEŚĆ");
-//        arrayList.add("SIEDEM");
-//        arrayList.add("OSIEM");
-//        arrayList.add("DZIEWIĘĆ");
-//        arrayList.add("DZIESIĘĆ");
-//        arrayList.add("JEDENAŚCIE");
-//        arrayList.add("DWANAŚCIE");
-//
-//        if(arrayList.isEmpty()) {
-//            findViewById(R.id.noDataTextView).setVisibility(View.VISIBLE);
-//        }
-//
-//        ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, arrayList);
-//
-//        listView.setAdapter(arrayAdapter);
-
+        //DBHelper db = new DBHelper(this);
+        //SQLiteDatabase sqlDB = db.getWritableDatabase();
+        //db.close();
 
         setupMenu();
         startLoader();
@@ -111,12 +74,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
         return false;
     }
-
-
-
-
-
-
 
     public void setupMenu(){
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
@@ -159,10 +116,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     private void startLoader(){
-//        LoaderManager.getInstance(MainActivity.this).restartLoader(0, null, this);
-        getSupportLoaderManager().initLoader(0, null, this);
+        LoaderManager.getInstance(this).restartLoader(0, null, this);
         String[] mapFrom = new String[]{DBHelper.BRAND, DBHelper.MODEL};
-        int[] mapTo = new int[]{R.id.brand_TextView, R.id.model_TextView};
+        int[] mapTo = new int[]{R.id.list_brand_TextView, R.id.list_model_TextView};
         //simpleCursorAdapter = new SimpleCursorAdapter(getApplicationContext(), R.layout.list_item, cursor, mapFrom, mapTo); //TODO: do something with not initialized cursor?
         simpleCursorAdapter = new SimpleCursorAdapter(this, R.layout.list_item, null, mapFrom, mapTo, 0);
         listView.setAdapter(simpleCursorAdapter);
@@ -172,11 +128,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
         String[] projection = {DBHelper.ID, DBHelper.BRAND, DBHelper.MODEL};
-        return new CursorLoader(this, MyContentProvider.URI_CONTENT, projection, null, null, null);
+        CursorLoader cursorLoader = new CursorLoader(this, MyContentProvider.URI_CONTENT, projection, null, null, null);
+        return cursorLoader;
     }
 
     @Override
-    public void onLoadFinished(@NonNull androidx.loader.content.Loader<Cursor> loader, Cursor data) {
+    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
         simpleCursorAdapter.swapCursor(data);
     }
 

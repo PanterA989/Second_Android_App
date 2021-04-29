@@ -2,10 +2,13 @@ package com.example.pollubprojektmobilne3;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.View;
@@ -110,9 +113,7 @@ public class AddSmartphoneActivity extends AppCompatActivity {
 
     //CHANGE
     public boolean isDataOK() {
-        if (brand.getText().toString().length() >= 2 && version.getText().toString().length() >= 3 && version.getText().toString().contains(".") && model.getText().toString().length() >= 1 && Patterns.WEB_URL.matcher( www.getText().toString()).matches()) {
-            return true;
-        } else return false;
+        return brand.getText().toString().length() >= 2 && version.getText().toString().length() >= 3 && version.getText().toString().contains(".") && model.getText().toString().length() >= 1 && Patterns.WEB_URL.matcher(www.getText().toString()).matches();
     }
 
     //CHANGE
@@ -140,7 +141,7 @@ public class AddSmartphoneActivity extends AppCompatActivity {
         wartosci.put("www", www.getText().toString());
         wartosci.put("version", version.getText().toString());
 
-        dbProvider.insert(dbProvider.URI_CONTENT, wartosci);
+        Uri uriNowego = getContentResolver().insert(MyContentProvider.URI_CONTENT, wartosci);
         finish();
     }
 

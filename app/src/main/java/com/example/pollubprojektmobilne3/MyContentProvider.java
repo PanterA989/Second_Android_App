@@ -2,6 +2,7 @@ package com.example.pollubprojektmobilne3;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -12,7 +13,9 @@ import androidx.annotation.Nullable;
 
 public class MyContentProvider extends ContentProvider {
 
-    private DBHelper dbHelper;
+    private static DBHelper dbHelper;
+
+    private static Context context;
 
     //supplier ID
     private static final String IDENTIFIER = "com.example.pollubprojektmobilne3";
@@ -37,6 +40,7 @@ public class MyContentProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         dbHelper = new DBHelper(getContext());
+        context = getContext();
         return true;
     }
 
@@ -46,19 +50,13 @@ public class MyContentProvider extends ContentProvider {
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
         int uriType = uriMatch.match(uri);
         long addedID;
-
-        //equivalent to C# using - automatic close() method call after end of scope
-        //(?)Suppressed Exceptions - https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html
-        SQLiteDatabase db1 = dbHelper.getWritableDatabase();
-        db1.close();
-        try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
-            if (uriType == WHOLE_TABLE) {
-                addedID = db.insert(DBHelper.TABLE_NAME,
-                        null, //nullColumnHack
-                        values);
-            } else {
-                throw new IllegalArgumentException("Unknown URI: " + uri);
-            }
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        if (uriType == WHOLE_TABLE) {
+            addedID = db.insert(DBHelper.TABLE_NAME,
+                    null, //nullColumnHack
+                    values);
+        } else {
+            throw new IllegalArgumentException("Unknown URI: " + uri);
         }
         //notification of data change
         getContext().getContentResolver().notifyChange(uri, null);
@@ -72,38 +70,37 @@ public class MyContentProvider extends ContentProvider {
         int uriType = uriMatch.match(uri);
         Cursor cursor;
 
-        //try-with-resources - equivalent to C# using - automatic close() method call after end of scope
-        try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
-            switch (uriType) {
-                case WHOLE_TABLE:
-                    cursor = db.query(true, //distinct
-                            DBHelper.TABLE_NAME,
-                            projection, //columns
-                            selection, //WHERE
-                            selectionArgs, //whereArgs
-                            null, //GROUP BY
-                            null, //HAVING
-                            sortOrder, //ORDER BY
-                            null); //limit
-                    break;
-                case SELECTED_ROW:
-                    cursor = db.query(true, //distinct
-                            DBHelper.TABLE_NAME,
-                            projection, //columns
-                            addIdToSelection(uri, selection), //WHERE
-                            selectionArgs, //whereArgs
-                            null, //GROUP BY
-                            null, //HAVING
-                            sortOrder, //ORDER BY
-                            null); //limit
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown URI: " + uri);
-            }
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        switch (uriType) {
+            case WHOLE_TABLE:
+                cursor = db.query(true, //distinct
+                        DBHelper.TABLE_NAME,
+                        projection, //columns
+                        selection, //WHERE
+                        selectionArgs, //whereArgs
+                        null, //GROUP BY
+                        null, //HAVING
+                        sortOrder, //ORDER BY
+                        null); //limit
+                break;
+            case SELECTED_ROW:
+                cursor = db.query(true, //distinct
+                        DBHelper.TABLE_NAME,
+                        projection, //columns
+                        addIdToSelection(uri, selection), //WHERE
+                        selectionArgs, //whereArgs
+                        null, //GROUP BY
+                        null, //HAVING
+                        sortOrder, //ORDER BY
+                        null); //limit
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown URI: " + uri);
         }
+
         //The URI can be monitored for data changes - here it is logged.
         //Observer (which needs to be registered will be notified of the change of data)
-        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+        cursor.setNotificationUri(context.getContentResolver(), uri);
         return cursor;
     }
 
@@ -113,22 +110,20 @@ public class MyContentProvider extends ContentProvider {
         int uriType = uriMatch.match(uri);
         int deletedRows;
 
-        //try-with-resources - equivalent to C# using - automatic close() method call after end of scope
-        try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
-            switch (uriType) {
-                case WHOLE_TABLE:
-                    deletedRows = db.delete(DBHelper.TABLE_NAME,
-                            selection, //WHERE
-                            selectionArgs); //whereArgs
-                    break;
-                case SELECTED_ROW:
-                    deletedRows = db.delete(DBHelper.TABLE_NAME,
-                            addIdToSelection(uri, selection), //WHERE
-                            selectionArgs); //whereArgs
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown URI: " + uri);
-            }
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        switch (uriType) {
+            case WHOLE_TABLE:
+                deletedRows = db.delete(DBHelper.TABLE_NAME,
+                        selection, //WHERE
+                        selectionArgs); //whereArgs
+                break;
+            case SELECTED_ROW:
+                deletedRows = db.delete(DBHelper.TABLE_NAME,
+                        addIdToSelection(uri, selection), //WHERE
+                        selectionArgs); //whereArgs
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown URI: " + uri);
         }
         //notification of data change
         getContext().getContentResolver().notifyChange(uri, null);
@@ -140,24 +135,22 @@ public class MyContentProvider extends ContentProvider {
         int uriType = uriMatch.match(uri);
         int updatedRows;
 
-        //try-with-resources - equivalent to C# using - automatic close() method call after end of scope
-        try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
-            switch (uriType) {
-                case WHOLE_TABLE:
-                    updatedRows = db.update(DBHelper.TABLE_NAME,
-                            values,
-                            selection, //WHERE
-                            selectionArgs); //whereArgs
-                    break;
-                case SELECTED_ROW:
-                    updatedRows = db.update(DBHelper.TABLE_NAME,
-                            values,
-                            addIdToSelection(uri, selection), //WHERE
-                            selectionArgs); //whereArgs
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown URI: " + uri);
-            }
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        switch (uriType) {
+            case WHOLE_TABLE:
+                updatedRows = db.update(DBHelper.TABLE_NAME,
+                        values,
+                        selection, //WHERE
+                        selectionArgs); //whereArgs
+                break;
+            case SELECTED_ROW:
+                updatedRows = db.update(DBHelper.TABLE_NAME,
+                        values,
+                        addIdToSelection(uri, selection), //WHERE
+                        selectionArgs); //whereArgs
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown URI: " + uri);
         }
         //notification of data change
         getContext().getContentResolver().notifyChange(uri, null);

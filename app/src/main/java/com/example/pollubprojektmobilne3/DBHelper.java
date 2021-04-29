@@ -13,12 +13,21 @@ public class DBHelper extends SQLiteOpenHelper {
     public final static String MODEL = "model";
     public final static String VERSION = "version";
     public final static String WWW = "www";
-    public final static String DB_CREATE = "CREATE TABLE " + TABLE_NAME + "(" + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + BRAND + " TEXT NOT NULL," + MODEL + " TEXT NOT NULL," + VERSION + " TEXT," + WWW + " TEXT);";
+    public final static String DB_CREATE =
+            "CREATE TABLE " + TABLE_NAME +
+                    "(" + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + BRAND + " TEXT NOT NULL, "
+                    + MODEL + " TEXT NOT NULL, "
+                    + VERSION + " TEXT, "
+                    + WWW + " TEXT);";
     private static final String DB_DELETE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+
+    private Context mContext;
 
     public DBHelper(Context context)
     {
         super(context, DB_NAME, null, DB_VERSION);
+        mContext = context;
     }
 
     @Override
