@@ -49,6 +49,8 @@ public class MyContentProvider extends ContentProvider {
 
         //equivalent to C# using - automatic close() method call after end of scope
         //(?)Suppressed Exceptions - https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html
+        SQLiteDatabase db1 = dbHelper.getWritableDatabase();
+        db1.close();
         try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
             if (uriType == WHOLE_TABLE) {
                 addedID = db.insert(DBHelper.TABLE_NAME,
