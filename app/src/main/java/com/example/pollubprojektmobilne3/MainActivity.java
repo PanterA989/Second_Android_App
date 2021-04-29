@@ -1,11 +1,5 @@
 package com.example.pollubprojektmobilne3;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.CursorLoader;
-import androidx.loader.content.Loader;
 
 import android.database.Cursor;
 import android.os.Bundle;
@@ -20,7 +14,22 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
+
 import java.util.ArrayList;
+
+
+
+//import androidx.loader.app.LoaderManager;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.app.LoaderManager.LoaderCallbacks;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
+//import android.app.LoaderManager.LoaderCallbacks;
+import android.widget.SimpleCursorAdapter;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -138,7 +147,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
 
     private void startLoader(){
-        LoaderManager.getInstance(MainActivity.this).restartLoader(0, null, this);
+//        LoaderManager.getInstance(MainActivity.this).restartLoader(0, null, this);
+        getSupportLoaderManager().initLoader(0, null, this);
         String[] mapFrom = new String[]{DBHelper.BRAND, DBHelper.MODEL};
         int[] mapTo = new int[]{R.id.brand_TextView, R.id.model_TextView};
         simpleCursorAdapter = new SimpleCursorAdapter(getApplicationContext(), R.layout.list_item, cursor, mapFrom, mapTo); //TODO: do something with not initialized cursor?
@@ -184,6 +194,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         });
     }
+
 
     @NonNull
     @Override
