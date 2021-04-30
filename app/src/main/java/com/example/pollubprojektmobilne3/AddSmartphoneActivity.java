@@ -13,7 +13,9 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class AddSmartphoneActivity extends AppCompatActivity {
+import java.util.Hashtable;
+
+public class AddSmartphoneActivity extends AppCompatActivity implements ConfirmDialog.ConfirmDialogListener {
 
     private EditText brand;
     private EditText version;
@@ -40,79 +42,70 @@ public class AddSmartphoneActivity extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         requestCode = bundle.getInt("requestCode");
         if (requestCode == MainActivity.REQUEST_CREATE_SMARTPHONE)
-            getSupportActionBar().setTitle("Dodanie smartfona");
+            getSupportActionBar().setTitle("Dodanie wpisu");
         if (requestCode == MainActivity.REQUEST_UPDATE_SMARTPHONE) {
-            getSupportActionBar().setTitle("Aktualizacja smartfona");
+            getSupportActionBar().setTitle("Aktualizacja wpisu");
             id = bundle.getLong("id");
-            brand.setText(getDBentryColumnValue(id, "brand"));
-            model.setText(getDBentryColumnValue(id, "model"));
-            version.setText(getDBentryColumnValue(id, "version"));
-            www.setText(getDBentryColumnValue(id, "www"));
+            setTextEditValues(id);
+            findViewById(R.id.Delete_Button).setVisibility(View.VISIBLE);
         }
     }
 
-    //CHANGE
-    public String getDBentryColumnValue(long id, String column) {
-        DBHelper dbHelper = new DBHelper(this);
+    void setTextEditValues(long id){
         Cursor cursor;
+        DBHelper dbHelper = new DBHelper(this);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         cursor = db.query(true, //distinct
                 DBHelper.TABLE_NAME, //table
                 new String[]{DBHelper.ID, DBHelper.BRAND, DBHelper.MODEL, DBHelper.VERSION, DBHelper.WWW}, //columns
-                DBHelper.ID + " = " + Long.toString(id), //selection - where
-                null, //selectionArgs
+                DBHelper.ID + "=?", //selection - where
+                new String[] {Long.toString(id)}, //selectionArgs
                 null, //group by
                 null, //having
                 null, //order by
                 null); //limit
-        startManagingCursor(cursor);
 
-        cursor.moveToFirst();
-
-        String value = "";
-        int columnIndex = cursor.getColumnIndexOrThrow(DBHelper.BRAND);
-
-        while (!cursor.isAfterLast()) {
-            switch (column) {
-                case "brand":
-                    columnIndex = cursor.getColumnIndexOrThrow(DBHelper.BRAND);
-                    break;
-                case "model":
-                    columnIndex = cursor.getColumnIndexOrThrow(DBHelper.MODEL);
-                    break;
-                case "version":
-                    columnIndex = cursor.getColumnIndexOrThrow(DBHelper.VERSION);
-                    break;
-                case "www":
-                    columnIndex = cursor.getColumnIndexOrThrow(DBHelper.WWW);
-                    break;
-
-            }
-
-            value = cursor.getString(columnIndex);
-            cursor.moveToNext();
+        Hashtable<String, String> smartphoneData = new Hashtable<>();
+        while (cursor.moveToNext()){
+            smartphoneData.put(DBHelper.BRAND, cursor.getString(cursor.getColumnIndex(DBHelper.BRAND)));
+            smartphoneData.put(DBHelper.MODEL, cursor.getString(cursor.getColumnIndex(DBHelper.MODEL)));
+            smartphoneData.put(DBHelper.VERSION, cursor.getString(cursor.getColumnIndex(DBHelper.VERSION)));
+            smartphoneData.put(DBHelper.WWW, cursor.getString(cursor.getColumnIndex(DBHelper.WWW)));
         }
-        return value;
 
+        cursor.close();
+
+        brand.setText(smartphoneData.get(DBHelper.BRAND));
+        model.setText(smartphoneData.get(DBHelper.MODEL));
+        version.setText(smartphoneData.get(DBHelper.VERSION));
+        www.setText(smartphoneData.get(DBHelper.WWW));
     }
 
     public boolean validation() {
-        if (brand.getText().toString().length() >= 2 &&
-                model.getText().toString().length() >= 1 &&
-                version.getText().toString().length() >= 3 &&
-                version.getText().toString().contains(".") &&
+
+        if (!brand.getText().toString().isEmpty() &&
+                !model.getText().toString().isEmpty() &&
+                !version.getText().toString().isEmpty() &&
                 Patterns.WEB_URL.matcher(www.getText().toString()).matches())
             return true;
         else {
-            showToast("Wprowadź poprawne dane");
+            String errors = "Błędne dane: ";
+            if(brand.getText().toString().isEmpty()) errors += "marka ";
+            if(model.getText().toString().isEmpty()) errors += "model ";
+            if(version.getText().toString().isEmpty()) errors += "wersja ";
+            if(!Patterns.WEB_URL.matcher(www.getText().toString()).matches()) errors += "www ";
+            showToast(errors);
             return false;
         }
     }
 
     public void showToast(String message) {
-        Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
+        Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
         toast.show();
     }
+
+
+//region SAVE BUTTON METHODS
 
     private void addSmartphone() {
         ContentValues wartosci = new ContentValues();
@@ -120,7 +113,11 @@ public class AddSmartphoneActivity extends AppCompatActivity {
         wartosci.put("brand", brand.getText().toString());
         wartosci.put("model", model.getText().toString());
         wartosci.put("www", www.getText().toString());
-        wartosci.put("version", version.getText().toString());
+
+        String ver = version.getText().toString();
+        if(!ver.contains(".")) ver += ".0";
+        if(ver.endsWith(".")) ver += "0";
+        wartosci.put("version", ver);
 
         getContentResolver().insert(MyContentProvider.URI_CONTENT, wartosci);
         finish();
@@ -128,21 +125,24 @@ public class AddSmartphoneActivity extends AppCompatActivity {
 
     private void updateSmartphone() {
         ContentValues values = new ContentValues();
-//        MyContentProvider dbProvider = new MyContentProvider();
 
         values.put("brand", brand.getText().toString());
         values.put("model", model.getText().toString());
         values.put("www", www.getText().toString());
         values.put("version", version.getText().toString());
 
-//        getContentResolver().update(dbProvider.URI_CONTENT, values, DBHelper.ID + " = " + Long.toString(id), null);
-        getContentResolver().update(MyContentProvider.URI_CONTENT, values, DBHelper.ID + " = " + Long.toString(id), null);
+        getContentResolver().update(MyContentProvider.URI_CONTENT, values, DBHelper.ID + " = " + id, null);
         finish();
     }
 
+//endregion
+
+
+
+//region BUTTON METHODS
+
     public void CancelAddingSmartphone(View view) {
         setResult(RESULT_CANCELED);
-        showToast("Anulowano");
         finish();
     }
 
@@ -169,4 +169,24 @@ public class AddSmartphoneActivity extends AppCompatActivity {
             finish();
         }
     }
+
+    public void DeleteSmartphone(View view) {
+        confirmDialog();
+    }
+
+    public void confirmDialog(){
+        ConfirmDialog dialog = new ConfirmDialog();
+        dialog.show(getSupportFragmentManager(), "confirmationDialog");
+    }
+
+    @Override
+    public void onYesClicked() {
+//        getContentResolver().delete(ContentUris.withAppendedId(MyContentProvider.URI_CONTENT, id), DBHelper.ID + " = " + Long.toString(id), null);
+        getContentResolver().delete(MyContentProvider.URI_CONTENT, DBHelper.ID + " = " + id, null);
+        Toast.makeText(getBaseContext(), "Usunięto smartphone.", Toast.LENGTH_SHORT).show();
+        setResult(RESULT_CANCELED);
+        finish();
+    }
+
+//endregion
 }

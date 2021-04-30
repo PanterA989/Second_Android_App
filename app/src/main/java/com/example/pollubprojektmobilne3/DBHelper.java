@@ -22,12 +22,9 @@ public class DBHelper extends SQLiteOpenHelper {
                     + WWW + " TEXT);";
     private static final String DB_DELETE = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
-    private Context mContext;
-
     public DBHelper(Context context)
     {
         super(context, DB_NAME, null, DB_VERSION);
-        mContext = context;
     }
 
     @Override

@@ -8,17 +8,14 @@ import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
-
-//import androidx.loader.app.LoaderManager;
-
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
@@ -39,14 +36,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         listView = findViewById(R.id.listOfSmartphones);
-
-        //DBHelper db = new DBHelper(this);
-        //SQLiteDatabase sqlDB = db.getWritableDatabase();
-        //db.close();
+        listView.setEmptyView(findViewById(R.id.noDataTextView));
 
         setupMenu();
         startLoader();
-
+        setUpOnClickListener();
     }
 
     @Override
@@ -58,17 +52,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.add_smartphone:
-                Toast.makeText(getBaseContext(), "Dodawanie", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(this, AddSmartphoneActivity.class);
-                intent.putExtra("requestCode", REQUEST_CREATE_SMARTPHONE);
-                startActivityForResult(intent, REQUEST_CREATE_SMARTPHONE);
+        if (item.getItemId() == R.id.add_smartphone) {
+            Intent intent = new Intent(this, AddSmartphoneActivity.class);
+            intent.putExtra("requestCode", REQUEST_CREATE_SMARTPHONE);
+            startActivityForResult(intent, REQUEST_CREATE_SMARTPHONE);
 
-                return true;
-            case R.id.remove_smartphone:
-                Toast.makeText(getBaseContext(), "Usuwanie", Toast.LENGTH_SHORT).show();
-                return true;
+            return true;
         }
         return false;
     }
@@ -97,13 +86,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                switch (item.getItemId()){
-                    case R.id.remove_smartphone:
-                        Toast.makeText(getBaseContext(), "Usuwanie", Toast.LENGTH_SHORT).show();
-                        return true;
-                    default:
-                        return false;
+                if (item.getItemId() == R.id.remove_smartphone) {
+                    deleteSelected();
+                    return true;
                 }
+                return false;
             }
 
             @Override
@@ -121,12 +108,31 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         listView.setAdapter(simpleCursorAdapter);
     }
 
+    public void setUpOnClickListener(){
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getApplicationContext(), AddSmartphoneActivity.class);
+                intent.putExtra("requestCode", REQUEST_UPDATE_SMARTPHONE);
+                intent.putExtra("id", id);
+                startActivityForResult(intent, REQUEST_UPDATE_SMARTPHONE);
+            }
+        });
+    }
+
+    private void deleteSelected(){
+        long[] checked = listView.getCheckedItemIds();
+        for (long l : checked) {
+            getContentResolver().delete(MyContentProvider.URI_CONTENT, DBHelper.ID + " = " + l, null);
+        }
+        Toast.makeText(getBaseContext(), "Usunięto wybrane elementy.", Toast.LENGTH_SHORT).show();
+    }
+
     @NonNull
     @Override
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
         String[] projection = {DBHelper.ID, DBHelper.BRAND, DBHelper.MODEL};
-        CursorLoader cursorLoader = new CursorLoader(this, MyContentProvider.URI_CONTENT, projection, null, null, null);
-        return cursorLoader;
+        return new CursorLoader(this, MyContentProvider.URI_CONTENT, projection, null, null, null);
     }
 
     @Override
