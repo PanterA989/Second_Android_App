@@ -2,8 +2,6 @@ package com.example.pollubprojektmobilne3;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.ContentProvider;
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -22,7 +20,7 @@ public class AddSmartphoneActivity extends AppCompatActivity {
     private EditText model;
     private EditText www;
 
-    private String operationType;
+    private int requestCode;
     private long id;
 
     @Override
@@ -35,45 +33,40 @@ public class AddSmartphoneActivity extends AppCompatActivity {
         model = findViewById(R.id.Model_EditText);
         www = findViewById(R.id.WWW_EditText);
 
-        handleOperationType();
+        prepareActivity();
     }
 
-    //CHANGE
-    public void handleOperationType() {
-        Bundle bundleIn = getIntent().getExtras();
-        operationType = bundleIn.getString("operationType");
-        if (operationType.contains("insert"))
-            getSupportActionBar().setTitle("Add a smartphone to the DB");
-        if (operationType.contains("update")) {
-            getSupportActionBar().setTitle("Update DB entry");
-            id = bundleIn.getLong("id"); //pobierz ID wpisu w BD przekazane przez poprzednią aktywność
-
-            //Ustaw w text inputach wartości pobrane z BD po indeksie przekazanym z poprzedniej aktywności
+    public void prepareActivity() {
+        Bundle bundle = getIntent().getExtras();
+        requestCode = bundle.getInt("requestCode");
+        if (requestCode == MainActivity.REQUEST_CREATE_SMARTPHONE)
+            getSupportActionBar().setTitle("Dodanie smartfona");
+        if (requestCode == MainActivity.REQUEST_UPDATE_SMARTPHONE) {
+            getSupportActionBar().setTitle("Aktualizacja smartfona");
+            id = bundle.getLong("id");
             brand.setText(getDBentryColumnValue(id, "brand"));
             model.setText(getDBentryColumnValue(id, "model"));
             version.setText(getDBentryColumnValue(id, "version"));
             www.setText(getDBentryColumnValue(id, "www"));
-
         }
     }
-
 
     //CHANGE
     public String getDBentryColumnValue(long id, String column) {
         DBHelper dbHelper = new DBHelper(this);
         Cursor cursor;
-        try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
-            cursor = db.query(true, //distinct
-                    DBHelper.TABLE_NAME, //tabela
-                    new String[]{DBHelper.ID, DBHelper.BRAND, DBHelper.MODEL, DBHelper.VERSION, DBHelper.WWW}, //kolumny
-                    DBHelper.ID + " = " + Long.toString(id), //selection - where
-                    null, //selectionArgs
-                    null, //group by
-                    null, //having
-                    null, //order by
-                    null); //limit
-            startManagingCursor(cursor);
-        }
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        cursor = db.query(true, //distinct
+                DBHelper.TABLE_NAME, //table
+                new String[]{DBHelper.ID, DBHelper.BRAND, DBHelper.MODEL, DBHelper.VERSION, DBHelper.WWW}, //columns
+                DBHelper.ID + " = " + Long.toString(id), //selection - where
+                null, //selectionArgs
+                null, //group by
+                null, //having
+                null, //order by
+                null); //limit
+        startManagingCursor(cursor);
+
         cursor.moveToFirst();
 
         String value = "";
@@ -103,87 +96,76 @@ public class AddSmartphoneActivity extends AppCompatActivity {
 
     }
 
-    //CHANGE
-    public boolean validate() {
-        if (!isDataOK()) {
-            showToast("Enter valid data");
+    public boolean validation() {
+        if (brand.getText().toString().length() >= 2 &&
+                model.getText().toString().length() >= 1 &&
+                version.getText().toString().length() >= 3 &&
+                version.getText().toString().contains(".") &&
+                Patterns.WEB_URL.matcher(www.getText().toString()).matches())
+            return true;
+        else {
+            showToast("Wprowadź poprawne dane");
             return false;
-        } else return true;
+        }
     }
 
-    //CHANGE
-    public boolean isDataOK() {
-        return brand.getText().toString().length() >= 2 && version.getText().toString().length() >= 3 && version.getText().toString().contains(".") && model.getText().toString().length() >= 1 && Patterns.WEB_URL.matcher(www.getText().toString()).matches();
-    }
-
-    //CHANGE
     public void showToast(String message) {
         Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
         toast.show();
     }
 
-    //CHANGE
-    private void addDBentry() {
-
+    private void addSmartphone() {
         ContentValues wartosci = new ContentValues();
-        MyContentProvider dbProvider = new MyContentProvider();
-//        EditText brand = (EditText)
-//                findViewById(R.id.Brand_EditText);
-//        EditText model = (EditText)
-//                findViewById(R.id.Model_EditText);
-//        EditText www = (EditText)
-//                findViewById(R.id.WWW_EditText);
-//        EditText version = (EditText)
-//                findViewById(R.id.Version_EditText);
 
         wartosci.put("brand", brand.getText().toString());
         wartosci.put("model", model.getText().toString());
         wartosci.put("www", www.getText().toString());
         wartosci.put("version", version.getText().toString());
 
-        Uri uriNowego = getContentResolver().insert(MyContentProvider.URI_CONTENT, wartosci);
+        getContentResolver().insert(MyContentProvider.URI_CONTENT, wartosci);
         finish();
     }
 
-    //CHANGE
-    private void updateDBentry() {
-        ContentValues wartosci = new ContentValues();
-        MyContentProvider dbProvider = new MyContentProvider();
-//        EditText brand = (EditText)
-//                findViewById(R.id.editText_brand);
-//        EditText model = (EditText)
-//                findViewById(R.id.editText_model);
-//        EditText www = (EditText)
-//                findViewById(R.id.editText_www);
-//        EditText version = (EditText)
-//                findViewById(R.id.editText_version);
+    private void updateSmartphone() {
+        ContentValues values = new ContentValues();
+//        MyContentProvider dbProvider = new MyContentProvider();
 
+        values.put("brand", brand.getText().toString());
+        values.put("model", model.getText().toString());
+        values.put("www", www.getText().toString());
+        values.put("version", version.getText().toString());
 
-        wartosci.put("brand", brand.getText().toString());
-        wartosci.put("model", model.getText().toString());
-        wartosci.put("www", www.getText().toString());
-        wartosci.put("version", version.getText().toString());
-
-        getContentResolver().update(dbProvider.URI_CONTENT, wartosci, DBHelper.ID + " = " + Long.toString(id), null);
+//        getContentResolver().update(dbProvider.URI_CONTENT, values, DBHelper.ID + " = " + Long.toString(id), null);
+        getContentResolver().update(MyContentProvider.URI_CONTENT, values, DBHelper.ID + " = " + Long.toString(id), null);
         finish();
     }
-
-
 
     public void CancelAddingSmartphone(View view) {
+        setResult(RESULT_CANCELED);
+        showToast("Anulowano");
+        finish();
     }
 
     public void GoToWWW(View view) {
+        String givenURL = www.getText().toString();
+        if (Patterns.WEB_URL.matcher(givenURL).matches()) {
+            if (!givenURL.startsWith("https://")) givenURL = "https://" + givenURL;
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW);
+            browserIntent.setData(Uri.parse(givenURL));
+            startActivity(browserIntent);
+        } else {
+            showToast("Podaj poprawny adres");
+        }
     }
 
     public void SaveSmartphone(View view) {
-        if (validate()) {
+        if (validation()) {
 
             Intent intentOut = new Intent();
-            intentOut.putExtra("operationType", operationType);
+            intentOut.putExtra("requestCode", requestCode);
+            if (requestCode == MainActivity.REQUEST_CREATE_SMARTPHONE) addSmartphone();
+            if (requestCode == MainActivity.REQUEST_UPDATE_SMARTPHONE) updateSmartphone();
             setResult(RESULT_OK, intentOut);
-            if (operationType.startsWith("insert")) addDBentry();
-            if (operationType.startsWith("update")) updateDBentry();
             finish();
         }
     }

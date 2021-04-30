@@ -3,7 +3,6 @@ package com.example.pollubprojektmobilne3;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -24,8 +23,6 @@ import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 import android.widget.SimpleCursorAdapter;
-//import android.app.LoaderManager.LoaderCallbacks;
-
 
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -34,7 +31,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private SimpleCursorAdapter simpleCursorAdapter;
 
 
-    private static final int REQUEST_ADD_SMARTPHONE = 378;
+    public static final int REQUEST_CREATE_SMARTPHONE = 378;
+    public static final int REQUEST_UPDATE_SMARTPHONE = 379;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,8 +62,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             case R.id.add_smartphone:
                 Toast.makeText(getBaseContext(), "Dodawanie", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(this, AddSmartphoneActivity.class);
-                intent.putExtra("operationType", "insert");
-                startActivityForResult(intent, REQUEST_ADD_SMARTPHONE);
+                intent.putExtra("requestCode", REQUEST_CREATE_SMARTPHONE);
+                startActivityForResult(intent, REQUEST_CREATE_SMARTPHONE);
 
                 return true;
             case R.id.remove_smartphone:
@@ -119,7 +117,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         LoaderManager.getInstance(this).restartLoader(0, null, this);
         String[] mapFrom = new String[]{DBHelper.BRAND, DBHelper.MODEL};
         int[] mapTo = new int[]{R.id.list_brand_TextView, R.id.list_model_TextView};
-        //simpleCursorAdapter = new SimpleCursorAdapter(getApplicationContext(), R.layout.list_item, cursor, mapFrom, mapTo); //TODO: do something with not initialized cursor?
         simpleCursorAdapter = new SimpleCursorAdapter(this, R.layout.list_item, null, mapFrom, mapTo, 0);
         listView.setAdapter(simpleCursorAdapter);
     }
