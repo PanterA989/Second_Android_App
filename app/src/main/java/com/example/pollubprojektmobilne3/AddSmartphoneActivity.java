@@ -35,6 +35,7 @@ public class AddSmartphoneActivity extends AppCompatActivity implements ConfirmD
         model = findViewById(R.id.Model_EditText);
         www = findViewById(R.id.WWW_EditText);
 
+        //setting up Activity
         prepareActivity();
     }
 
@@ -45,8 +46,11 @@ public class AddSmartphoneActivity extends AppCompatActivity implements ConfirmD
             getSupportActionBar().setTitle("Dodanie wpisu");
         if (requestCode == MainActivity.REQUEST_UPDATE_SMARTPHONE) {
             getSupportActionBar().setTitle("Aktualizacja wpisu");
+            //getting smartphone id from bundle
             id = bundle.getLong("id");
+            //filling TextEdit fields with smartphone data
             setTextEditValues(id);
+            //showing delete button
             findViewById(R.id.Delete_Button).setVisibility(View.VISIBLE);
         }
     }
@@ -66,7 +70,9 @@ public class AddSmartphoneActivity extends AppCompatActivity implements ConfirmD
                 null); //limit
 
         Hashtable<String, String> smartphoneData = new Hashtable<>();
+        //while loop for all selected elements.
         while (cursor.moveToNext()){
+            //puting elements to Hashtable
             smartphoneData.put(DBHelper.BRAND, cursor.getString(cursor.getColumnIndex(DBHelper.BRAND)));
             smartphoneData.put(DBHelper.MODEL, cursor.getString(cursor.getColumnIndex(DBHelper.MODEL)));
             smartphoneData.put(DBHelper.VERSION, cursor.getString(cursor.getColumnIndex(DBHelper.VERSION)));
@@ -75,6 +81,7 @@ public class AddSmartphoneActivity extends AppCompatActivity implements ConfirmD
 
         cursor.close();
 
+        //setting TextEdit texts with acquired data
         brand.setText(smartphoneData.get(DBHelper.BRAND));
         model.setText(smartphoneData.get(DBHelper.MODEL));
         version.setText(smartphoneData.get(DBHelper.VERSION));
@@ -82,13 +89,14 @@ public class AddSmartphoneActivity extends AppCompatActivity implements ConfirmD
     }
 
     public boolean validation() {
-
+        //main validation
         if (!brand.getText().toString().isEmpty() &&
                 !model.getText().toString().isEmpty() &&
                 !version.getText().toString().isEmpty() &&
                 Patterns.WEB_URL.matcher(www.getText().toString()).matches())
             return true;
         else {
+            //adding information which fields are incorrect
             String errors = "Błędne dane: ";
             if(brand.getText().toString().isEmpty()) errors += "marka ";
             if(model.getText().toString().isEmpty()) errors += "model ";
@@ -115,10 +123,12 @@ public class AddSmartphoneActivity extends AppCompatActivity implements ConfirmD
         wartosci.put("www", www.getText().toString());
 
         String ver = version.getText().toString();
+        //adding .0 to the end of version if integer given
         if(!ver.contains(".")) ver += ".0";
         if(ver.endsWith(".")) ver += "0";
         wartosci.put("version", ver);
 
+        //inserting smartphone to database
         getContentResolver().insert(MyContentProvider.URI_CONTENT, wartosci);
         finish();
     }
@@ -148,10 +158,14 @@ public class AddSmartphoneActivity extends AppCompatActivity implements ConfirmD
 
     public void GoToWWW(View view) {
         String givenURL = www.getText().toString();
+        //checking if given text is URL
         if (Patterns.WEB_URL.matcher(givenURL).matches()) {
+            //adding https if necessary
             if (!givenURL.startsWith("https://")) givenURL = "https://" + givenURL;
             Intent browserIntent = new Intent(Intent.ACTION_VIEW);
+            //seting URL for browser
             browserIntent.setData(Uri.parse(givenURL));
+            //starting browser
             startActivity(browserIntent);
         } else {
             showToast("Podaj poprawny adres");
@@ -160,9 +174,9 @@ public class AddSmartphoneActivity extends AppCompatActivity implements ConfirmD
 
     public void SaveSmartphone(View view) {
         if (validation()) {
-
             Intent intentOut = new Intent();
             intentOut.putExtra("requestCode", requestCode);
+            //calling the appropriate method depending on the type of activity
             if (requestCode == MainActivity.REQUEST_CREATE_SMARTPHONE) addSmartphone();
             if (requestCode == MainActivity.REQUEST_UPDATE_SMARTPHONE) updateSmartphone();
             setResult(RESULT_OK, intentOut);
@@ -171,17 +185,15 @@ public class AddSmartphoneActivity extends AppCompatActivity implements ConfirmD
     }
 
     public void DeleteSmartphone(View view) {
-        confirmDialog();
-    }
-
-    public void confirmDialog(){
         ConfirmDialog dialog = new ConfirmDialog();
+        //showing confirmation dialog - after pressing YES, method onYesClicked() will be called
         dialog.show(getSupportFragmentManager(), "confirmationDialog");
     }
 
+    //implementation of interface from ConfirmDialog
     @Override
     public void onYesClicked() {
-//        getContentResolver().delete(ContentUris.withAppendedId(MyContentProvider.URI_CONTENT, id), DBHelper.ID + " = " + Long.toString(id), null);
+        //deleting element from DB depending on its id
         getContentResolver().delete(MyContentProvider.URI_CONTENT, DBHelper.ID + " = " + id, null);
         Toast.makeText(getBaseContext(), "Usunięto smartphone.", Toast.LENGTH_SHORT).show();
         setResult(RESULT_CANCELED);

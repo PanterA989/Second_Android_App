@@ -168,7 +168,7 @@
             android:layout_marginTop="16dp"
             android:onClick="DeleteSmartphone"
             android:text="@string/remove_smartphone"
-            android:visibility="invisible"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/Cancel_Button" />

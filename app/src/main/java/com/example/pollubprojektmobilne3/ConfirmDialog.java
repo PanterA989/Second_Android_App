@@ -19,22 +19,24 @@ public class ConfirmDialog extends AppCompatDialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Usuwanie")
-                .setMessage("Czy na pewno chcesz usunąć ten smartphone?")
-                .setNegativeButton("Nie", new DialogInterface.OnClickListener() {
+                .setMessage("Czy na pewno chcesz usunąć dane?")
+                .setNegativeButton("Nie", new DialogInterface.OnClickListener() { //adding No button
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
                     }
                 })
-                .setPositiveButton("Tak", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Tak", new DialogInterface.OnClickListener() { //adding yes button
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        //calling onYesClicked() in context which called dialog
                         listener.onYesClicked();
                     }
                 });
         return builder.create();
     }
 
+    //creating interface
     public interface ConfirmDialogListener{
         void onYesClicked();
     }
